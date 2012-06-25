@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="dc-json" default="build" basedir=".">
+    <path id="project.classpath">
+        <fileset dir="../dc-utils/dist">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="build" depends="compile">
+    	<delete dir="dist"/>
+        <copy todir="tmp/classes">
+            <fileset dir="src">
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>
+                <include name="**/play.plugins"/>
+                <include name="**/play.static"/>
+            </fileset>
+        </copy>
+        <jar destfile="dist/dc-json.jar" basedir="tmp/classes">
+            <manifest>
+                <section name="Play-module">
+                    <attribute name="Specification-Title" value="dccrm"/>
+                </section>
+            </manifest>
+        </jar>
+        <delete dir="tmp" />
+    </target>
+
+    <target name="compile">
+        <mkdir dir="tmp/classes" />
+        <javac destdir="tmp/classes" debug="true">
+        	<src path="src" />
+            <classpath refid="project.classpath" />
+        </javac>
+    </target>
+
+</project>
