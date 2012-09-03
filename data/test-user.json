@@ -1,0 +1,38 @@
+{
+  "id": "U1",
+  "email": "conrado.delabarra@gmail.com",
+  "mappings": {
+    "DC": {
+      "id": "U1_DC_PLATFORM_ID",
+      "token": "U1_DC_PLATFORM_TOKEN"
+    },
+    "FB": {
+      "id": "U1_FB_PLATFORM_ID",
+      "token": "U1_FB_PLATFORM_TOKEN"
+    }
+  },
+  "neighbors": {
+    "U2": "NONE",
+    "U3": "PENDING",
+    "U4": "ACCEPTED"
+  },
+  "outbox": [
+    "R1",
+    "FB@R1",
+    "DC@R1"
+  ],
+  "inbox": {
+    "FB@R2": {
+      "sender": "FB@U2",
+      "createdAt": 1328925960086
+    },
+    "DC@R2": {
+      "sender": "DC@U2",
+      "createdAt": 1328925988789
+    },
+    "R3": {
+      "sender": "U3",
+      "createdAt": 1329613623144
+    }
+  }
+}

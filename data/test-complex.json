@@ -1,0 +1,18 @@
+{
+  "id": "COMPLEX_ID",
+  "grish": 123,
+  "basic": {
+    "id": "BASIC_ID",
+    "email": "conrado.delabarra@gmail.com"
+  },
+  "map":{
+	  "ONE":1,
+	  "TWO":2,
+	  "tree":3,
+	  "FOUR":4
+  },
+  "nestedMap":{
+	  "HELLO":{"time":"1","sender":"Grish"},
+	  "WORLD":{"time":"2","sender":"Gago"}
+  }
+}
