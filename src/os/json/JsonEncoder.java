@@ -241,7 +241,10 @@ public class JsonEncoder
 			Map<Object,Object> map = (Map<Object,Object>)o;
 			for(Map.Entry<Object, Object> entry:map.entrySet()){
 				if(entry.getValue()!=null){
-					s += d1+escapeString( entry.getKey().toString() ) + ":" + convertToString( entry.getValue(), depth+1)+","+el;
+					String vs = convertToString( entry.getValue(), depth+1);
+					if(vs!=null && vs.length()>0){
+						s += d1+escapeString( entry.getKey().toString() ) + ":" +vs+","+el;
+					}
 				}
 			}
 			
@@ -251,7 +254,10 @@ public class JsonEncoder
 				Types.Property property = entry.getValue();
 				Object val = property.invokeGetter(o);
 				if(val!=null){
-					s += d1+escapeString( entry.getKey().toString() ) + ":" + convertToString( val,depth+1 )+","+el;
+					String vs =  convertToString( val,depth+1 );
+					if(vs!=null && vs.length()>0){
+						s += d1+escapeString( entry.getKey().toString() ) + ":" +vs+","+el;
+					}
 				}
 			}
 		}

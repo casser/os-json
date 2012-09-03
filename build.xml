@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="dc-json" default="build" basedir=".">
+<project name="os-json" default="build" basedir=".">
     <path id="project.classpath">
-        <fileset dir="../dc-utils/dist">
+        <fileset dir="../os-utils/dist">
             <include name="*.jar"/>
         </fileset>
     </path>
@@ -12,15 +12,12 @@
         <copy todir="tmp/classes">
             <fileset dir="src">
                 <include name="**/*.properties"/>
-                <include name="**/*.xml"/>
-                <include name="**/play.plugins"/>
-                <include name="**/play.static"/>
             </fileset>
         </copy>
-        <jar destfile="dist/dc-json.jar" basedir="tmp/classes">
+        <jar destfile="dist/os-json.jar" basedir="tmp/classes">
             <manifest>
-                <section name="Play-module">
-                    <attribute name="Specification-Title" value="dccrm"/>
+                <section name="OPen Source JSON Serializer">
+                    <attribute name="Specification-Title" value="os-json"/>
                 </section>
             </manifest>
         </jar>

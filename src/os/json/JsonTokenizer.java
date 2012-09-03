@@ -69,7 +69,7 @@ public class JsonTokenizer
 		// skip any whitespace / comments since the last 
 		// token was read
 		skipIgnored();
-		
+		int lastLoc = 0;
 		// examine the new character and see what we have...
 		switch ( ch )
 		{
@@ -98,37 +98,39 @@ public class JsonTokenizer
 				nextChar();
 			break;
 			case 't': // attempt to read true
+				lastLoc = loc;
 				String possibleTrue = "t" + nextChar() + nextChar() + nextChar();
 				if ( possibleTrue == "true" ){
 					token = JsonToken.create( JsonToken.Type.TRUE, true );
 					nextChar();
 				}else{
-					parseError( "Expecting 'true' but found " + possibleTrue );
+					loc = lastLoc;
 				}
 			break;
 			case 'f': // attempt to read false
+				lastLoc = loc;
 				String possibleFalse = "f" + nextChar() + nextChar() + nextChar() + nextChar();
 				
 				if ( possibleFalse == "false" )
 				{
 					token = JsonToken.create( JsonToken.Type.FALSE, false );
 					nextChar();
-				}
-				else
-				{
-					parseError( "Expecting 'false' but found " + possibleFalse );
+				}else{
+					loc = lastLoc;
 				}
 			break;
 			case 'n': // attempt to read null
+				lastLoc = loc;
 				String possibleNull = "n" + nextChar() + nextChar() + nextChar();
 				if ( possibleNull == "null" ){
 					token = JsonToken.create( JsonToken.Type.NULL, null );
 					nextChar();
 				}else{
-					parseError( "Expecting 'null' but found " + possibleNull );
+					loc = lastLoc;
 				}
 				break;
-			case '"': // the start of a string
+			case '\"': 
+			case '\'': 
 				token = readString();
 			break;
 			default:
@@ -139,10 +141,23 @@ public class JsonTokenizer
 				else if ( ch == 0 ){
 					// check for reading past the end of the string
 					token = null;
-				}else{
-					// not sure what was in the input string - it's not
-					// anything we expected
-					parseError( "Unexpected " + ch + " encountered" );
+				}else {
+					String possibleKeyString = ""+ch;
+					while(isKeyChar(nextChar())){
+						possibleKeyString = possibleKeyString+ch;
+					}
+					if(possibleKeyString.matches("[a-zA-Z09]+\\(.*\\)")){
+						String hackName = possibleKeyString.substring(0,possibleKeyString.indexOf('('));
+						if(JSON.hasHack(hackName)){
+							token = JsonToken.create(JsonToken.Type.STRING,JSON.getHack(hackName).execute(possibleKeyString.substring(
+								possibleKeyString.indexOf('(')+1,
+								possibleKeyString.indexOf(')')
+							)));
+						}
+					}else{
+						token = JsonToken.create(JsonToken.Type.STRING,possibleKeyString);	
+					}
+					
 				}
 		}
 		return token;
@@ -159,7 +174,7 @@ public class JsonTokenizer
 		do
 		{
 			// Find the next quote in the input stream
-			quoteIndex = jsonString.indexOf( "\"", quoteIndex );
+			quoteIndex = jsonString.indexOf( ch, quoteIndex );
 			
 			if ( quoteIndex >= 0 )
 			{
@@ -207,13 +222,6 @@ public class JsonTokenizer
 	}
 	
 	public String unescapeString( String input ) throws JsonParseError{
-		// Issue #104 - If the string contains any unescaped control characters, this
-		// is an error in strict mode
-		
-		/*if ( controlCharsRegExp.test( input ) )
-		{
-			parseError( "String contains unescaped control character (0x00-0x1F)" );
-		}*/
 		
 		String result = "";
 		int backslashIndex = 0;
@@ -501,6 +509,13 @@ public class JsonTokenizer
 		while (isWhiteSpace(ch)){
 			nextChar();
 		}
+	}
+	
+	private Boolean isKeyChar(char ch) {
+		if ( ch=='$' || ch=='_' || ch=='.' || ch=='(' || ch==')' || (ch >= '0' && ch <= '9') ||  (ch >= 'a' && ch <= 'z') ||  (ch >= 'A' && ch <= 'Z') ){
+			return true;
+		}
+		return false;
 	}
 	
 	private Boolean isWhiteSpace(char ch) {

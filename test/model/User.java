@@ -4,13 +4,11 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
-import os.utils.Types.Type;
 import os.utils.Types.Property.Index;
 import os.utils.Types.Property.Info;
 
 
-@Type.Info(name="User", description="User Object")
-public class User{
+public class User {
 	
 	
 	public static class Mappings extends EnumMap<Mappings.Key,Mappings.Value> {

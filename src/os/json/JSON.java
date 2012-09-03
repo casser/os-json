@@ -36,9 +36,39 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class JSON {
-
+	public static interface Hack {
+		public String key();
+		public Object execute(String source);
+	}
+	
+	public static Map<String, Hack> hacks = new LinkedHashMap<String, JSON.Hack>();
+	static {
+		try {
+			@SuppressWarnings("rawtypes")
+			final Class BsonIdClass = Class.forName("os.bson.BsonId");
+			hacks.put("BsonId", new Hack() {
+				@Override
+				public String key() {
+					return "BsonId";
+				}
+				
+				@SuppressWarnings("unchecked")
+				@Override
+				public Object execute(String source) {
+					try {
+						return BsonIdClass.getConstructor(new Class[]{String.class}).newInstance(source);
+					} catch (Exception e) {
+						return source;
+					}
+				}
+			});
+		} catch (ClassNotFoundException e) {
+		}
+	}
 	
 	public static <T> T decode(String document) throws JsonParseError{
 		return decode(document,null);
@@ -61,8 +91,22 @@ public class JSON {
 	}
 	
 	public static <T> T decode(String document, Class<T> type) throws JsonParseError{
-		return (T)(new JsonDecoder().decode(document,type));
+		return (new JsonDecoder().decode(document,type));
 	}
+	
+	public static void addHack(Hack hack){
+		hacks.put(hack.key(), hack);
+	}
+	public static void removeHack(String key){
+		hacks.remove(key);
+	}
+	public static Boolean hasHack(String key){
+		return hacks.containsKey(key);
+	}
+	public static Hack getHack(String key){
+		return hacks.get(key);
+	}
+	
 	
 	public static String schema(Class<?> document){
 		return schema(document,false);

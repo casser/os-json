@@ -32,6 +32,8 @@
 
 package os.json;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,7 +78,13 @@ public class JsonDecoder {
 	}
 	
 	private <T> T parseArray(Class<T> cls) throws JsonParseError {
-		Types.Type type = Types.getType(cls);
+		
+		Types.Type type;
+		if(cls==null){
+			type = Types.getType(ArrayList.class);
+		}else{
+			type = Types.getType(cls);	
+		}
 		T a = type.newInstance();
 		
 		// grab the next token from the tokenizer to move
@@ -191,8 +199,13 @@ public class JsonDecoder {
 			}
 			return (T)value;
 		}
+		Types.Type type;
+		if(cls==null){
+			type = Types.getType(HashMap.class);
+		}else{
+			type = Types.getType(cls);	
+		}
 		
-		Types.Type type = Types.getType(cls);
 		// create the object internally that we're going to
 		// attempt to parse from the tokenizer
 		T o = type.newInstance();
@@ -280,20 +293,33 @@ public class JsonDecoder {
 	 * Attempt to parse a value
 	 * @throws JsonParseError 
 	 */
+	@SuppressWarnings("unchecked")
 	private <T> T parseValue(Class<T> type) throws JsonParseError {
 		
 		checkValidToken();
 		switch ( token.type ){
 			case LEFT_BRACE:
-				return parseObject(type);
+				if(type==Object.class){
+					return (T) parseObject(HashMap.class);	
+				}else{
+					return (T) parseObject(type);	
+				}
 			case LEFT_BRACKET:
-				return parseArray(type);
+				if(type==Object.class){
+					return (T) parseArray(ArrayList.class);	
+				}else{
+					return (T) parseArray(type);	
+				}
 			case STRING:
 			case NUMBER:
 			case TRUE:
 			case FALSE:
 			case NULL:
-				return (T) token.readValue(type);
+				if(type==Object.class){
+					return (T) token.value;
+				}else{
+					return (T) token.readValue(type);	
+				}
 			default:
 				tokenizer.parseError( "Unexpected " + token.value );
 		}
