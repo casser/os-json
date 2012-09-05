@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import os.json.annotations.JsonIgnore;
 import os.utils.StringUtils;
 import os.utils.Types;
 
@@ -252,11 +253,13 @@ public class JsonEncoder
 			Map<String, Types.Property> properties = type.getProperties();
 			for(Map.Entry<String, Types.Property> entry:properties.entrySet()){
 				Types.Property property = entry.getValue();
-				Object val = property.invokeGetter(o);
-				if(val!=null){
-					String vs =  convertToString( val,depth+1 );
-					if(vs!=null && vs.length()>0){
-						s += d1+escapeString( entry.getKey().toString() ) + ":" +vs+","+el;
+				if(!property.hasAnnotation(JsonIgnore.class)){
+					Object val = property.invokeGetter(o);
+					if(val!=null){
+						String vs =  convertToString( val, depth+1 );
+						if(vs!=null && vs.length()>0){
+							s += d1+escapeString( entry.getKey().toString() ) + ":" +vs+","+el;
+						}
 					}
 				}
 			}
